@@ -6,7 +6,7 @@ const BackgroundImage = (): React.ReactElement => {
     <div className="relative m-10 overflow-hidden group">
       <img
         className="w-full h-auto object-cover transition-transform duration-500 transform group-hover:scale-110"
-        src="src\assets\background.jpg"
+        src="./src/assets/background.jpg"
         alt="Stylish clothing background"
       />
       <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center">
