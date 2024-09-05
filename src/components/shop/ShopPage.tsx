@@ -160,9 +160,8 @@ const ShopPage: React.FC = () => {
     });
   };
 
-  const openCart = () => {
+  const openCart = () =>
     isCartOpen ? setIsCartOpen(false) : setIsCartOpen(true);
-  };
 
   return (
     <ItemsCartContext.Provider value={cart}>
