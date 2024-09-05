@@ -174,9 +174,9 @@ const ShopPage: React.FC = () => {
               isCartOpen ? "opacity-100 scale-100" : ""
             }`}
           >
-            <h3 className="text-lg font-bold mb-2">Twój koszyk</h3>
+            <h3 className="text-lg font-bold mb-2">Cart</h3>
             {cart.length === 0 ? (
-              <p>Koszyk jest pusty</p>
+              <p>Cart is empty</p>
             ) : (
               <ul>
                 {cart.map((item, index) => (
@@ -197,13 +197,14 @@ const ShopPage: React.FC = () => {
               </ul>
             )}
             <p className="text-center font-bold">
-              Total : {cart.reduce((sum, item) => sum + item.price, 0)}$
+              Total :{" "}
+              {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}$
             </p>
             <button
               onClick={() => {}} // Przekierowanie do checkoutu
-              className="mt-4 pl-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-400 transition"
+              className="mt-4 pl-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-400 transition text-center"
             >
-              Przejdź do kasy
+              <p>Checkout</p>
             </button>
           </div>
         )}
