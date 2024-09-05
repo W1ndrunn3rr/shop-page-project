@@ -3,13 +3,17 @@ import { Item } from "./Items";
 import { useNavigate, useParams } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 
+interface OutletContextProps {
+  addToCart: (item: Item) => void;
+}
+
 const ProductDisplay: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<Item | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { addToCart } = useOutletContext();
+  const { addToCart } = useOutletContext<OutletContextProps>();
 
   const navigator = useNavigate();
 

@@ -1,7 +1,7 @@
 import BackgroundImage from "./BackgroundImage";
-import NavBar from "./NavBar";
 import ProductCategories from "./ProductCategories";
 import Footer from "../common/Footer";
+import NavBar from "../common/NavBar";
 function HomePage() {
   return (
     <>
