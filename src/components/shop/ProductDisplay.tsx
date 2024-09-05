@@ -1,41 +1,52 @@
 import { useState, useEffect } from "react";
 import { Item } from "./Items";
-import NavBar from "../common/NavBar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
-interface ProductDisplayProp {
-  productID: number;
-}
+const ProductDisplay: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [item, setItem] = useState<Item | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-const ProductDisplay = ({ productID }: ProductDisplayProp) => {
+  const { addToCart } = useOutletContext();
+
   const navigator = useNavigate();
 
-  const [item, setItem] = useState<Item | null>(null);
-
   useEffect(() => {
-    const fetchItem = async (id: number): Promise<Item | null> => {
+    const fetchItem = async () => {
+      if (!id) {
+        setError("Product ID is missing");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
       try {
         const response = await fetch(`https://fakestoreapi.com/products/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch item");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data: Item = await response.json();
-        return data;
+        setItem(data);
       } catch (error) {
-        console.log("Error fetching data: ", error);
-        return null;
+        setError("Failed to fetch product data. Please try again later.");
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    const itemSet = async () => {
-      const item = await fetchItem(productID);
-      setItem(item);
-    };
+    fetchItem();
+  }, [id]);
 
-    itemSet();
-  }, [productID]);
-
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!item) return <div>No product found</div>;
   return (
     <div>
-      <NavBar />
       <div className="m-12 p-12 bg-gray-100 shadow-2xl rounded-md flex flex-col md:flex-row justify-center items-center">
         <div className="flex justify-center items-center bg-white p-6 rounded-md shadow-lg">
           <img
@@ -50,7 +61,10 @@ const ProductDisplay = ({ productID }: ProductDisplayProp) => {
           <p className="text-xl font-semibold text-gray-800 mt-6">
             ${item?.price}
           </p>
-          <button className="mt-8 px-6 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition duration-300 ease-in-out">
+          <button
+            onClick={() => addToCart(item)}
+            className="mt-8 px-6 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
+          >
             Add to Cart
           </button>
           <button

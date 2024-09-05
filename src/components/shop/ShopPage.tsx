@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Footer from "../common/Footer";
-import NavBar from "../common/NavBar";
 import Items, { Item } from "./Items";
 import { useImmer } from "use-immer";
 import FilterBar from "./FilterBar";
+import { Outlet, useLocation } from "react-router-dom";
+import ShopNavBar from "./ShopNavBar";
+import { ItemsCartContext } from "./ShoppingCart";
 
 interface ItemData {
   id: number;
@@ -36,6 +38,9 @@ const ShopPage: React.FC = () => {
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredItems, setFilteredItems] = useState(itemDataList);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const location = useLocation();
+  const [cart, setCart] = useImmer<Item[]>([]);
 
   useEffect(() => {
     const fetchItem = async (id: number): Promise<Item | null> => {
@@ -140,38 +145,102 @@ const ShopPage: React.FC = () => {
     matchInput();
   }, [itemDataList, searchTerm]);
 
+  const addToCart = (item: Item) => {
+    setCart((draft) => {
+      draft.push(item);
+    });
+  };
+
+  const deleteFromCart = (id: number) => {
+    setCart((draft) => {
+      const index = draft.findIndex((item) => item.id === id); // Find the index of the first occurrence
+      if (index !== -1) {
+        draft.splice(index, 1); // Remove the item at the found index
+      }
+    });
+  };
+
+  const openCart = () => {
+    isCartOpen ? setIsCartOpen(false) : setIsCartOpen(true);
+  };
+
   return (
-    <div>
-      <NavBar />
-      <div className="flex items-center p-5 mt-10 ml-20 mr-20">
-        <span className="text-3xl material-symbols-outlined">search</span>
-        <input
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-          }}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <input />
-      <div className="flex flex-col items-center justify-center ml-10 mr-10">
-        <FilterBar filter={updateItemsList} />
-
-        {filteredItems.length === 0 ? (
-          <h1>Items not found :(</h1>
-        ) : (
-          <Items
-            itemList={filteredItems
-              .map((data) => data.item)
-              .filter((item): item is Item => item !== null)}
-          />
+    <ItemsCartContext.Provider value={cart}>
+      <div>
+        <ShopNavBar openCart={openCart} />
+        {isCartOpen && (
+          <div
+            className={`absolute right-0 m-4 md:w-80  bg-white border border-gray-300 rounded-lg shadow-lg p-4 z-50 transition duration-300 ease-in-out transform opacity-0 scale-95 ${
+              isCartOpen ? "opacity-100 scale-100" : ""
+            }`}
+          >
+            <h3 className="text-lg font-bold mb-2">Twój koszyk</h3>
+            {cart.length === 0 ? (
+              <p>Koszyk jest pusty</p>
+            ) : (
+              <ul>
+                {cart.map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex justify-between items-center mb-2"
+                  >
+                    <span>{item.title}</span>
+                    <span className="mr-4 ml-4">{item.price} zł</span>
+                    <button
+                      onClick={() => deleteFromCart(item.id)}
+                      className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition duration-300 ease-in-out"
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-center font-bold">
+              Total : {cart.reduce((sum, item) => sum + item.price, 0)}$
+            </p>
+            <button
+              onClick={() => {}} // Przekierowanie do checkoutu
+              className="mt-4 pl-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-400 transition"
+            >
+              Przejdź do kasy
+            </button>
+          </div>
         )}
+
+        {location.pathname === "/shop" ? (
+          <>
+            <div className="flex items-center p-5 mt-10 ml-20 mr-20">
+              <span className="text-3xl material-symbols-outlined">search</span>
+              <input
+                type="text"
+                placeholder="Search..."
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <input />
+            <div className="flex flex-col items-center justify-center ml-10 mr-10">
+              <FilterBar filter={updateItemsList} />
+              {filteredItems.length === 0 ? (
+                <h1>Items not found :(</h1>
+              ) : (
+                <Items
+                  itemList={filteredItems
+                    .map((data) => data.item)
+                    .filter((item) => item !== null)}
+                />
+              )}
+            </div>
+          </>
+        ) : (
+          <Outlet context={{ addToCart }} />
+        )}
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </ItemsCartContext.Provider>
   );
 };
-
 export default ShopPage;

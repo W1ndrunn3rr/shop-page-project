@@ -1,5 +1,5 @@
 import BackgroundImage from "./BackgroundImage";
-import NavBar from "../common/NavBar";
+import NavBar from "./NavBar";
 import ProductCategories from "./ProductCategories";
 import Footer from "../common/Footer";
 function HomePage() {
