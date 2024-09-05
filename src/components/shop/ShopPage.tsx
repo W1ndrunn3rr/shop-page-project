@@ -184,7 +184,7 @@ const ShopPage: React.FC = () => {
                     className="flex justify-between items-center mb-2"
                   >
                     <span>{item.title}</span>
-                    <span className="mr-4 ml-4">{item.price} zł</span>
+                    <span className="mr-4 ml-4">{item.price} $</span>
                     <button
                       onClick={() => deleteFromCart(item.id)}
                       className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-700 transition duration-300 ease-in-out"
